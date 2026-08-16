@@ -171,4 +171,34 @@ def calcular_faturamento_trilha(id_trilha):
     # Retorna o valor total do faturamento da trilha.
     return faturamento
 
-print(calcular_faturamento_trilha("101"))
+
+# id_trilha será dado em string e id_participante em int
+def registrar_checkin(id_trilha,id_participante):
+#Laço for para acessar os participantes no dicionário inscritos que está dentro do dicionário id_trilha(string) que está dentro do dicionário trilhas
+    for participante in trilhas[id_trilha]["inscritos"]:
+        # Verifica se encontrou o participante informado pelo guia
+        if id_participante == participante["id_participante"]:
+            # Só realiza o check-in se ele ainda estiver pendente
+            if participante["status_checkin"] == "Pendente":
+                # muda o status checkin para concluído
+                participante["status_checkin"] = "Concluído"
+                # adicionar o id da trilha na lista do histórico dentro do dicionário de participantes
+                participantes[str(id_participante)]["historico_trilhas"].append(id_trilha)
+                # adiciona uma trilha nas trilhas concluídas
+                participantes[str(id_participante)]["trilhas_concluidas"] += 1
+                # Chamando minha função classificar trilheiro e atribuindo a uma nova variável para classificar o novo nível do trilheiro
+                novo_nivel = classificar_nivel_trilheiro(participantes[str(id_participante)]["trilhas_concluidas"])
+                # atribuindo o novo nível na chave nível dentro do dicionário participante
+                participantes[str(id_participante)]["nivel"] = novo_nivel
+
+                return True 
+                    # Caso encontre o participante, mas o check-in já esteja concluído
+            else:
+                print("Check-in já concluído")
+                return False
+
+    # Caso o for termine sem encontrar o participante
+    print("Participante não encontrado")
+    return False
+
+
