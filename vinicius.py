@@ -1,110 +1,4 @@
-# Banco de dados provisório para testar as funções
 
-trilhas = {
-    "101": {
-        "id_trilha": 101,
-        "nome": "Trilha A",
-        "local": "Crato - CE",
-        "dificuldade": "Fácil",
-        "capacidade": 10,
-        "preco": 50.00,
-        "status": "Disponível",
-        "inscritos": [
-            {
-                "id_participante": 501,
-                "nome": "João",
-                "status_checkin": "Concluído"
-            },
-            {
-                "id_participante": 502,
-                "nome": "Maria",
-                "status_checkin": "Concluído"
-            },
-            {
-                "id_participante": 503,
-                "nome": "Pedro",
-                "status_checkin": "Pendente"
-            }
-        ]
-    },
-
-    "102": {
-        "id_trilha": 102,
-        "nome": "Trilha B",
-        "local": "Barbalha - CE",
-        "dificuldade": "Média",
-        "capacidade": 15,
-        "preco": 70.00,
-        "status": "Disponível",
-        "inscritos": [
-            {
-                "id_participante": 504,
-                "nome": "Ana",
-                "status_checkin": "Concluído"
-            },
-            {
-                "id_participante": 505,
-                "nome": "Lucas",
-                "status_checkin": "Pendente"
-            }
-        ]
-    },
-
-    "103": {
-        "id_trilha": 103,
-        "nome": "Trilha C",
-        "local": "Juazeiro do Norte - CE",
-        "dificuldade": "Difícil",
-        "capacidade": 8,
-        "preco": 90.00,
-        "status": "Disponível",
-        "inscritos": [
-            {
-                "id_participante": 506,
-                "nome": "Carlos",
-                "status_checkin": "Concluído"
-            },
-            {
-                "id_participante": 507,
-                "nome": "Fernanda",
-                "status_checkin": "Concluído"
-            },
-            {
-                "id_participante": 508,
-                "nome": "Rafael",
-                "status_checkin": "Pendente"
-            }
-        ]
-    },
-
-    "104": {
-        "id_trilha": 104,
-        "nome": "Trilha D",
-        "local": "Crato - CE",
-        "dificuldade": "Fácil",
-        "capacidade": 20,
-        "preco": 40.00,
-        "status": "Disponível",
-        "inscritos": [
-            {
-                "id_participante": 509,
-                "nome": "Beatriz",
-                "status_checkin": "Pendente"
-            }
-        ]
-    },
-
-    "105": {
-        "id_trilha": 105,
-        "nome": "Trilha E",
-        "local": "Barbalha - CE",
-        "dificuldade": "Difícil",
-        "capacidade": 12,
-        "preco": 100.00,
-        "status": "Disponível",
-        "inscritos": []
-    }
-}
 
 # Função responsável por classificar o nível do trilheiro
 # com base na quantidade de trilhas que ele já concluiu.
@@ -200,5 +94,26 @@ def registrar_checkin(id_trilha,id_participante):
     # Caso o for termine sem encontrar o participante
     print("Participante não encontrado")
     return False
+
+    # id_trilha será dado em string e id_participante em int
+def remover_participante(id_trilha, id_participante):
+
+    # Laço for para acessar os participantes no dicionário inscritos
+    for participante in trilhas[id_trilha]["inscritos"]:
+
+        # Verifica se encontrou o participante informado pelo guia
+        if id_participante == participante["id_participante"]:
+            trilhas[id_trilha]["inscritos"].remove(participante)
+
+            # Verificar se a trilha está lotada
+            if trilhas[id_trilha]["status"] == "Lotada":
+                trilhas[id_trilha]["status"] = "Disponível"
+
+            return True
+
+    # O for terminou e não encontrou o participante
+    print("Participante não encontrado")
+    return False
+
 
 
