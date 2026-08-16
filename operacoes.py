@@ -1,0 +1,76 @@
+def solicitar_reserva(id_trilha, id_participante):
+    #1. Verifica se o participante existe no cadastro global
+    if str(id_participante) not in participantes:
+        return "Participante não cadastrado. Por favor, cadastre o participante antes de solicitar a reserva."
+
+    #2. Busca os dados do participante no cadastro global
+    dados_participante = participantes[str(id_participante)]
+
+    #3 Monta o dicionário no formato que a função adicionar_participante espera
+    novo_participante = {
+        "id_participante": dados_participante["id_participante"],
+        "nome_trilheiro": dados_participante["nome_trilheiro"],
+        "status_checkin": "Pendente"
+    }
+
+    #4 Chama a função adicionar_participante
+    return adicionar_participante(id_trilha, novo_participante)
+
+
+
+
+def adicionar_participante (id_trilha, novo_participante):
+#1. Verifica se a trilha existe
+    if id_trilha not in trilhas:
+        return "Trilha não encontrada."
+    
+#1.1 Verifica se os dados do participante estão completos 
+    campo_obrigatorio = ["id_participante", "nome", "status_checkin"]
+    for campo in campo_obrigatorio:
+        if campo not in novo_participante:
+            return f"Dados do participante incompletos: falta '{campo}'"
+
+#1.2 guarda os dados da trilha específica numa variável, pra não repetir trilhas[id_trilha] toda hora
+    trilha = trilhas[id_trilha]
+
+#2. Verifica se ainda há vagas
+    vagas_ocupadas = len(trilha["inscritos"])
+    if vagas_ocupadas >= trilha["capacidade"]:
+        trilha["status"] = "Lotada"
+        return "Trilha lotada, não é possível adicionar participante"
+
+#3. Adiciona o participante na lista
+    trilha["inscritos"].append(novo_participante)
+
+#4. Atualiza o status se acabou de lotar
+    if len(trilha["inscritos"]) >= trilha["capacidade"]:
+        trilha["status"] = "Lotada"
+
+    return "Participante adicionado com sucesso"
+
+#5. Verifica se o participante já está inscrito na trilha.
+    for participante in trilha["inscritos"]:
+        if participante["id_participante"] == novo_participante["id_participante"]:
+            return "Participante já inscrito na trilha."
+
+
+
+def gerar_relatorio_geral(lista_trilhas):
+    lucro_total = 0
+
+    print("=== Relatório Geral de Trilhas ===")
+    for id_trilha in lista_trilhas:
+        trilha = lista_trilhas[id_trilha]
+
+        # Calcula ocupação em porcentagem
+        vagas_ocupadas = len(trilha["inscritos"])
+        capacidade = trilha["capacidade"]
+        ocupacao_percentual = (vagas_ocupadas / capacidade) * 100
+
+        # Chama a função calcular_faturamento_trilha
+        faturamento = calcular_faturamento_trilha(id_trilha)
+        lucro_total += faturamento
+
+        print(f"{trilha['nome']}: {ocupacao_percentual:.1f}% ocupada | Faturamento: R${faturamento:.2f}")
+
+    print(f"\nLucro total do guia: R${lucro_total:.2f}")
