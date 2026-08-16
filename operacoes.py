@@ -1,3 +1,5 @@
+from usuarios import classificar_nivel_trilheiro
+
 def solicitar_reserva(id_trilha, id_participante):
     #1. Verifica se o participante existe no cadastro global
     if str(id_participante) not in participantes:
@@ -54,7 +56,7 @@ def adicionar_participante (id_trilha, novo_participante):
             return "Participante já inscrito na trilha."
 
 
-
+# Função para calcular faturamento dos guias
 def gerar_relatorio_geral(lista_trilhas):
     lucro_total = 0
 
@@ -74,3 +76,65 @@ def gerar_relatorio_geral(lista_trilhas):
         print(f"{trilha['nome']}: {ocupacao_percentual:.1f}% ocupada | Faturamento: R${faturamento:.2f}")
 
     print(f"\nLucro total do guia: R${lucro_total:.2f}")
+
+# Calcula o faturamento da trilha com base nos participantes que concluíram o check-in.
+def calcular_faturamento_trilha(id_trilha):
+    concluidos = 0
+
+    for participante in trilhas[id_trilha]["inscritos"]:
+        if participante["status_checkin"] == "Concluído":
+            concluidos += 1
+
+    faturamento = concluidos * trilhas[id_trilha]["preco"]
+
+    return faturamento
+
+    # Registra o check-in do participante e atualiza seu histórico, quantidade de trilhas concluídas e nível.
+def registrar_checkin(id_trilha, id_participante):
+
+    for participante in trilhas[id_trilha]["inscritos"]:
+
+        # Verifica se o participante informado está inscrito na trilha
+        if id_participante == participante["id_participante"]:
+
+            if participante["status_checkin"] == "Pendente":
+                participante["status_checkin"] = "Concluído"
+
+                participantes[str(id_participante)]["historico_trilhas"].append(id_trilha)
+                participantes[str(id_participante)]["trilhas_concluidas"] += 1
+
+                # Recalcula o nível após aumentar a quantidade de trilhas concluídas
+                novo_nivel = classificar_nivel_trilheiro(
+                    participantes[str(id_participante)]["trilhas_concluidas"]
+                )
+
+                participantes[str(id_participante)]["nivel"] = novo_nivel
+
+                return True
+
+            else:
+                print("Check-in já concluído")
+                return False
+
+    # Se o laço terminar sem retornar, o participante não foi encontrado
+    print("Participante não encontrado")
+    return False
+
+    # Remove um participante da trilha e atualiza sua disponibilidade caso uma vaga seja liberada.
+def remover_participante(id_trilha, id_participante):
+
+    for participante in trilhas[id_trilha]["inscritos"]:
+
+        # Localiza o participante informado e o remove da lista de inscritos
+        if id_participante == participante["id_participante"]:
+            trilhas[id_trilha]["inscritos"].remove(participante)
+
+            # Se a trilha estava lotada, a remoção faz com que volte a ter vaga
+            if trilhas[id_trilha]["status"] == "Lotada":
+                trilhas[id_trilha]["status"] = "Disponível"
+
+            return True
+
+    # O laço só chega ao fim se nenhum participante com o ID informado for encontrado
+    print("Participante não encontrado")
+    return False

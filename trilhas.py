@@ -47,3 +47,13 @@ def editar_trilha(id_trilha, campo, novo_valor, dict_memoria):
         # Fallback caso a chave principal (ID) não seja encontrada
         print("ERRO: Trilha não encontrada no sistema.")
         return False
+
+    # Filtra e retorna os nomes das trilhas de acordo com o nível de dificuldade informado.
+def buscar_por_dificuldade(nivel_desejado):
+    encontradas = []
+
+    for trilha in trilhas:
+        if trilhas[trilha]["dificuldade"] == nivel_desejado:
+            encontradas.append(trilhas[trilha]["nome"])
+
+    return encontradas

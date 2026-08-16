@@ -15,7 +15,7 @@ def cadastrar_participante(nome, telefone):
         "nome_trilheiro": nome,
         "telefone": telefone,
         "trilhas concluídas": 0,
-        "nível de trilheiro:": "Iniciante",
+        "nível de trilheiro:": "Curioso da Trilha",
         "histórico de trilhas": [],
 
     }
@@ -24,3 +24,21 @@ def cadastrar_participante(nome, telefone):
     participantes[str(novo_id)] = novo_participante
 
     return f"Participante cadastrado com sucesso! ID: {novo_id}"
+
+#4. Classifica o nível do trilheiro de acordo com a quantidade de trilhas concluídas.
+def classificar_nivel_trilheiro(trilhas_concluidas):
+
+    if trilhas_concluidas <= 2:
+        return "Curioso da Trilha"
+
+    elif trilhas_concluidas <= 5:
+        return "Trilheiro"
+
+    elif trilhas_concluidas <= 10:
+        return "Desbravador"
+
+    elif trilhas_concluidas <= 20:
+        return "Buscador de Horizontes"
+
+    else:
+        return "Lenda das Trilhas"
