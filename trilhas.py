@@ -195,3 +195,22 @@ def listar_trilhas_disponiveis(dict_memoria):
         return False
 
     return True
+
+
+def buscar_por_dificuldade(nivel_desejado, dict_memoria):
+    
+    trilhas = dict_memoria.get("trilhas", {})
+    encontradas = []
+    
+    # Padroniza a string de busca para evitar que "Fácil" e "fácil" sejam tratadas diferentes
+    nivel_formatado = str(nivel_desejado).strip().lower()
+
+    for id_trilha, dados_trilha in trilhas.items():
+        # Extrai a dificuldade da trilha atual de forma segura e padronizada
+        dificuldade_atual = str(dados_trilha.get("dificuldade", "")).strip().lower()
+        
+        # Filtra e adiciona à lista de retorno
+        if dificuldade_atual == nivel_formatado:
+            encontradas.append(dados_trilha.get("nome_trilha", "Desconhecida"))
+            
+    return encontradas
