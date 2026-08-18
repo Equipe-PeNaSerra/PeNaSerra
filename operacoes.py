@@ -193,3 +193,36 @@ def registrar_checkin(id_trilha, id_participante, dict_memoria):
     # O laço iterou por todos os inscritos e não encontrou o ID
     print("ERRO: Este participante não está inscrito nesta trilha.")
     return False
+
+
+
+def remover_participante(id_trilha, id_participante, dict_memoria):
+    
+    id_trilha_str = str(id_trilha)
+    id_part_str = str(id_participante)
+    trilhas = dict_memoria.get("trilhas", {})
+
+    if id_trilha_str not in trilhas:
+        print("ERRO: Trilha não encontrada.")
+        return False
+
+    trilha_alvo = trilhas[id_trilha_str]
+    inscritos_lista = trilha_alvo.get("inscritos", [])
+
+    # Itera para encontrar o participante
+    for inscrito in inscritos_lista:
+        
+        if str(inscrito.get("id_participante")) == id_part_str:
+            
+            # Remove o dicionário do participante da lista
+            inscritos_lista.remove(inscrito)
+
+            # Regra de Negócio: Se a trilha estava lotada, a remoção libera 1 vaga
+            if trilha_alvo.get("status") == "Lotada":
+                trilha_alvo["status"] = "Disponível"
+
+            print("Cancelamento de inscrição realizado com sucesso.")
+            return True
+
+    print("ERRO: O participante não foi encontrado na lista de inscritos desta trilha.")
+    return False
