@@ -138,3 +138,58 @@ def calcular_faturamento_trilha(id_trilha, dict_memoria):
     faturamento = concluidos * preco
 
     return faturamento
+
+
+def registrar_checkin(id_trilha, id_participante, dict_memoria):
+    
+    id_trilha_str = str(id_trilha)
+    id_part_str = str(id_participante)
+    
+    trilhas = dict_memoria.get("trilhas", {})
+    participantes = dict_memoria.get("participantes", {})
+
+    # Validações estruturais de existência
+    if id_trilha_str not in trilhas:
+        print("ERRO: Trilha não encontrada no sistema.")
+        return False
+        
+    if id_part_str not in participantes:
+        print("ERRO: Participante não encontrado no banco global.")
+        return False
+
+    trilha_alvo = trilhas[id_trilha_str]
+    participante_global = participantes[id_part_str]
+
+    # Laço for para encontrar o micro-dicionário de inscrição dentro da trilha
+    for inscrito in trilha_alvo.get("inscritos", []):
+        
+        if str(inscrito.get("id_participante")) == id_part_str:
+            
+            # Só realiza o check-in se ele estiver como False (Pendente)
+            if inscrito.get("status_checkin") is False:
+                
+                # 1. Atualiza o status local na trilha
+                inscrito["status_checkin"] = True
+                
+                # 2. Adiciona o ID da trilha no histórico global do participante
+                # Protege contra KeyError usando list.append de forma segura
+                historico = participante_global.setdefault("historico_trilhas", [])
+                historico.append(id_trilha_str)
+                
+                # 3. Incrementa o contador de trilhas globais
+                participante_global["trilhas_concluidas"] = participante_global.get("trilhas_concluidas", 0) + 1
+                
+                # 4. Atualiza o Nível/Patente
+                novo_nivel = classificar_nivel_trilheiro(participante_global["trilhas_concluidas"])
+                participante_global["nivel_trilheiro"] = novo_nivel
+
+                print(f"Check-in concluído! {inscrito.get('nome_trilheiro')} agora é: {novo_nivel}")
+                return True
+                
+            else:
+                print("AVISO: Check-in deste participante já estava concluído.")
+                return False
+
+    # O laço iterou por todos os inscritos e não encontrou o ID
+    print("ERRO: Este participante não está inscrito nesta trilha.")
+    return False
