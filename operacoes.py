@@ -110,3 +110,31 @@ def gerar_relatorio_geral(dict_memoria):
     print(f"Faturamento Total Previsto: R$ {lucro_br}")
     
     return True
+
+
+
+def calcular_faturamento_trilha(id_trilha, dict_memoria):
+    
+    trilhas = dict_memoria.get("trilhas", {})
+    id_str = str(id_trilha)
+    
+    # Validação de existência da trilha
+    if id_str not in trilhas:
+        return 0.0
+
+    trilha_alvo = trilhas[id_str]
+    concluidos = 0
+
+    # O uso do .get() retorna uma lista vazia caso a trilha não tenha a chave 'inscritos'
+    for participante in trilha_alvo.get("inscritos", []):
+        
+        # Só fatura participantes que efetivamente concluíram a trilha
+        # A validação em boolean (True) substitui o texto "Concluído" exigido pela nova arquitetura
+        if participante.get("status_checkin") is True:
+            concluidos += 1
+
+    # Garante que o preço seja tratado como float para evitar erro matemático
+    preco = float(trilha_alvo.get("preco", 0.0))
+    faturamento = concluidos * preco
+
+    return faturamento
