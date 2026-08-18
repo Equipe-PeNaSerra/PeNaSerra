@@ -58,3 +58,19 @@ def cadastrar_guia(nome_guia, telefone, especialidade, dict_memoria):
 
     return f"Guia cadastrado com sucesso! ID: {novo_id}"
 
+def classificar_nivel_trilheiro(trilhas_concluidas):
+    
+    # Previne bugs caso o contador seja acidentalmente negativo
+    if trilhas_concluidas < 0:
+        trilhas_concluidas = 0
+
+    if trilhas_concluidas <= 2:
+        return "Iniciante"  # Ajustado para combinar com o cadastro base
+    elif trilhas_concluidas <= 5:
+        return "Trilheiro"
+    elif trilhas_concluidas <= 10:
+        return "Desbravador"
+    elif trilhas_concluidas <= 20:
+        return "Buscador de Horizontes"
+    else:
+        return "Lenda das Trilhas"
