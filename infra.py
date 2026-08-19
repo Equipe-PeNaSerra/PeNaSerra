@@ -32,7 +32,7 @@ def salvar_dados_sistema(nome_arquivo_json, dict_memoria):
     arquivo = Path(nome_arquivo_json)
     
     try:
-        # json.dumps (dump string) converte o dicionário para uma string formatada
+        # json.dumps (dump string) converte o dicionário Python para uma string formatada
         texto_json = json.dumps(dict_memoria, indent=4, ensure_ascii=False)
         
         # write_text() abre, escreve a string e fecha o arquivo automaticamente
