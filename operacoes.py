@@ -24,6 +24,8 @@ def adicionar_participante(id_trilha, id_participante, dict_memoria):
     if id_participante not in participantes:
         return "ERRO: Participante não encontrado na base de dados."
 
+    # pega o dicionário completo com as informações necessárias da trilha e do participante pelo ID,
+    # evitando buscar de novo mais adiante
     trilha_alvo = trilhas[id_trilha]
     participante_global = participantes[id_participante]
 
@@ -92,7 +94,7 @@ def gerar_relatorio_geral(dict_memoria):
         faturamento = vagas_ocupadas * preco
         lucro_total += faturamento
 
-        # troca o ponto por vírgula, para ficar no padrão do real.
+        # troca o ponto por vírgula, para ficar no padrão do real
         faturamento_br = f"{faturamento:.2f}".replace(".", ",")
         
         nome = trilha.get("nome_trilha", "Desconhecida")
