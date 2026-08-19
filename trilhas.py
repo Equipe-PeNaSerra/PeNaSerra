@@ -50,7 +50,7 @@ def editar_trilha(id_trilha, campo, novo_valor, dict_memoria):
     
 
 
-    def cadastrar_trilha(nome_trilha, id_guia, local, dificuldade, capacidade, preco, dict_memoria):
+def cadastrar_trilha(nome_trilha, id_guia, local, dificuldade, capacidade, preco, dict_memoria):
 
     # Previne o cadastro se os campos de texto estiverem vazios
     if not nome_trilha.strip() or not local.strip() or not dificuldade.strip():
