@@ -1,9 +1,9 @@
 # Importa os módulos isolados para manter a organização e responsabilidade única
-from auth.py import *
-from infra.py import *
-from operacoes.py import *
-from trilhas.py import *
-from usuarios.py import *
+from auth import *
+from infra import *
+from operacoes import *
+from trilhas import *
+from usuarios import *
 
 # Constante global (Single Source of Truth) para o banco de dados.
 # Centraliza o nome do arquivo para facilitar futuras manutenções.
