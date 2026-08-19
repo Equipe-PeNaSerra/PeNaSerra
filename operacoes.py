@@ -1,61 +1,56 @@
 def solicitar_reserva(id_trilha, id_participante, dict_memoria):
     
-    # Sanitização básica de entrada para garantir que o backend receba o tipo correto
+    # transforma os IDs em texto porque as chaves dos dicionários usados
+    # no sistema são sempre strings, então evita erro de comparação
     id_trilha_str = str(id_trilha)
     id_part_str = str(id_participante)
 
-    # Como o padrão 'Single Source of Truth' foi aplicado na adicionar_participante,
-    # não precisamos buscar o usuário ou montar o dicionário de status do check-in aqui.
-    # Delega-se a operação completa de validação e escrita para o módulo de operações.
+    # essa função so serve de ponte pra a função adicionar_participante, que já
+    # cuida de toda a validação e da lógica de inscrição
     mensagem_resultado = adicionar_participante(id_trilha_str, id_part_str, dict_memoria)
     
-    # Repassa a mensagem de sucesso ou erro (ex: "Trilha Lotada") de volta para o menu
     return mensagem_resultado
 
 
 def adicionar_participante(id_trilha, id_participante, dict_memoria):
     
-    # Padroniza os IDs para busca nas chaves do dicionário (que são sempre strings)
-    id_trilha_str = str(id_trilha)
-    id_part_str = str(id_participante)
-    
     trilhas = dict_memoria["trilhas"]
     participantes = dict_memoria.get("participantes", {})
 
-    # Verifica se a trilha e o participante existem no sistema global
-    if id_trilha_str not in trilhas:
+    # antes de fazer qualquer coisa, precisa garantir que a trilha e o participante
+    # realmente existem no sistema, senão não tem como continuar
+    if id_trilha not in trilhas:
         return "ERRO: Trilha não encontrada no sistema."
-        
-    if id_part_str not in participantes:
+    if id_participante not in participantes:
         return "ERRO: Participante não encontrado na base de dados."
 
-    # Guarda os dados em variáveis locais para evitar repetição de busca no dicionário
-    trilha_alvo = trilhas[id_trilha_str]
-    participante_global = participantes[id_part_str]
+    trilha_alvo = trilhas[id_trilha]
+    participante_global = participantes[id_participante]
 
-    # Verifica se o participante já está inscrito (movido para antes do processamento)
+    # percorre a lista de inscritos da trilha pra ver se essa pessoa já tá lá dentro,
+    # já que não faz sentido a mesma pessoa se inscrever duas vezes
     for inscrito in trilha_alvo["inscritos"]:
-        if str(inscrito["id_participante"]) == id_part_str:
+        if str(inscrito["id_participante"]) == id_participante:
             return "AVISO: Este participante já possui uma inscrição ativa nesta trilha."
 
-    # Verifica se ainda há vagas
+    # conta quantas vagas já foram ocupadas e compara com a capacidade máxima da trilha
     vagas_ocupadas = len(trilha_alvo["inscritos"])
     if vagas_ocupadas >= trilha_alvo["capacidade"]:
-        # Se algum erro anterior não alterou o status, força a correção aqui
         trilha_alvo["status"] = "Lotada"
         return "ERRO: Trilha lotada. Não é possível adicionar o participante."
 
-    # Monta o micro-dicionário de inscrição com dados oficiais da base (Segurança)
+    # cria o registro de inscrição usando os dados que já existem do participante,
+    # começando o check-in como falso porque ele ainda não confirmou presença
     novo_inscrito = {
-        "id_participante": int(id_part_str),
+        "id_participante": int(id_participante),
         "nome_trilheiro": participante_global["nome_trilheiro"],
         "status_checkin": False
     }
 
-    # Adiciona o participante na lista da trilha
     trilha_alvo["inscritos"].append(novo_inscrito)
 
-    # Atualiza o status automaticamente se esta inscrição preencheu a última vaga
+    # depois de adicionar, confere de novo se essa foi a última vaga disponível,
+    # e se foi, já atualiza o status da trilha pra lotada
     if len(trilha_alvo["inscritos"]) >= trilha_alvo["capacidade"]:
         trilha_alvo["status"] = "Lotada"
 
@@ -65,10 +60,10 @@ def adicionar_participante(id_trilha, id_participante, dict_memoria):
 
 def gerar_relatorio_geral(dict_memoria):
     
-    # Extrai o banco de dados de forma segura
     trilhas = dict_memoria.get("trilhas", {})
     
-    # Bloqueia a execução se não houver dados para gerar o relatório
+    # se não tiver nenhuma trilha cadastrada, não tem relatório pra gerar,
+    # então já para a função aqui e avisa o usuário
     if not trilhas:
         print("AVISO: Nenhuma trilha cadastrada para gerar relatório.")
         return False
@@ -77,34 +72,34 @@ def gerar_relatorio_geral(dict_memoria):
 
     print("\n=== RELATÓRIO FINANCEIRO E DE OCUPAÇÃO GERAL ===")
     
-    # O uso de .items() permite extrair ID e Dicionário na mesma linha
+    # passa por cada trilha cadastrada pra calcular a ocupação e o faturamento dela
     for id_trilha, trilha in trilhas.items():
         
-        # Acesso seguro aos dados com prevenção de KeyError
         inscritos = trilha.get("inscritos", [])
         vagas_ocupadas = len(inscritos)
         capacidade = trilha.get("capacidade", 1)
         preco = float(trilha.get("preco", 0.0))
         
-        # Programação Defensiva: Impede erro fatal de Divisão por Zero
+        # calcula a porcentagem de ocupação, mas só se a capacidade for maior que zero,
+        # senão daria erro de divisão por zero
         if capacidade > 0:
             ocupacao_percentual = (vagas_ocupadas / capacidade) * 100
         else:
             ocupacao_percentual = 0.0
 
-        # Cálculo de faturamento direto no laço economiza processamento
+        # multiplica as vagas ocupadas pelo preço da trilha pra saber o faturamento dela,
+        # e vai somando no total geral
         faturamento = vagas_ocupadas * preco
         lucro_total += faturamento
 
-        # Formatação para o padrão monetário brasileiro
+        # troca o ponto por vírgula, para ficar no padrão do real.
         faturamento_br = f"{faturamento:.2f}".replace(".", ",")
         
-        # Resgata o nome com fallback caso a chave não exista
         nome = trilha.get("nome_trilha", "Desconhecida")
         
         print(f"- {nome}: {ocupacao_percentual:.1f}% ocupada | Faturamento: R$ {faturamento_br}")
 
-    # Exibição do consolidado final
+    # depois de passar por todas as trilhas, mostra o faturamento total somado
     lucro_br = f"{lucro_total:.2f}".replace(".", ",")
     print("-" * 55)
     print(f"Faturamento Total Previsto: R$ {lucro_br}")
