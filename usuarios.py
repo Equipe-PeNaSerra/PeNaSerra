@@ -60,12 +60,12 @@ def cadastrar_guia(nome_guia, telefone, especialidade, dict_memoria):
 
 def classificar_nivel_trilheiro(trilhas_concluidas):
     
-    # Previne bugs caso o contador seja acidentalmente negativo
+    # Previne erro caso fique com número de trilhas negativas
     if trilhas_concluidas < 0:
         trilhas_concluidas = 0
 
     if trilhas_concluidas <= 2:
-        return "Iniciante"  # Ajustado para combinar com o cadastro base
+        return "Iniciante"  
     elif trilhas_concluidas <= 5:
         return "Trilheiro"
     elif trilhas_concluidas <= 10:

@@ -209,7 +209,7 @@ def buscar_por_dificuldade(nivel_desejado, dict_memoria):
         # Extrai a dificuldade da trilha atual de forma segura e padronizada
         dificuldade_atual = str(dados_trilha.get("dificuldade", "")).strip().lower()
         
-        # Filtra e adiciona à lista de retorno
+        # Filtra e adiciona na lista de retorno
         if dificuldade_atual == nivel_formatado:
             encontradas.append(dados_trilha.get("nome_trilha", "Desconhecida"))
             
