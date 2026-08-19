@@ -129,7 +129,7 @@ def calcular_faturamento_trilha(id_trilha, dict_memoria):
     for participante in trilha_alvo.get("inscritos", []):
         
         # Só fatura participantes que efetivamente concluíram a trilha
-        # A validação em boolean (True) substitui o texto "Concluído" exigido pela nova arquitetura
+        # Considerando a ida bem sucedida como uma booleana True
         if participante.get("status_checkin") is True:
             concluidos += 1
 
@@ -148,11 +148,11 @@ def registrar_checkin(id_trilha, id_participante, dict_memoria):
     trilhas = dict_memoria.get("trilhas", {})
     participantes = dict_memoria.get("participantes", {})
 
-    # Validações estruturais de existência
+    # Validações de existência
     if id_trilha_str not in trilhas:
         print("ERRO: Trilha não encontrada no sistema.")
         return False
-        
+    # Tentativa de tratamento de erro    
     if id_part_str not in participantes:
         print("ERRO: Participante não encontrado no banco global.")
         return False
@@ -162,7 +162,7 @@ def registrar_checkin(id_trilha, id_participante, dict_memoria):
 
     # Laço for para encontrar o micro-dicionário de inscrição dentro da trilha
     for inscrito in trilha_alvo.get("inscritos", []):
-        
+        # Verifica se o id procurado bate com id do participante nos inscritos
         if str(inscrito.get("id_participante")) == id_part_str:
             
             # Só realiza o check-in se ele estiver como False (Pendente)
@@ -201,7 +201,7 @@ def remover_participante(id_trilha, id_participante, dict_memoria):
     id_trilha_str = str(id_trilha)
     id_part_str = str(id_participante)
     trilhas = dict_memoria.get("trilhas", {})
-
+    # Tentativa de erro para caso o id não esteja no dicionário
     if id_trilha_str not in trilhas:
         print("ERRO: Trilha não encontrada.")
         return False
@@ -217,7 +217,7 @@ def remover_participante(id_trilha, id_participante, dict_memoria):
             # Remove o dicionário do participante da lista
             inscritos_lista.remove(inscrito)
 
-            # Regra de Negócio: Se a trilha estava lotada, a remoção libera 1 vaga
+            # Se a trilha estava lotada, a remoção libera 1 vaga
             if trilha_alvo.get("status") == "Lotada":
                 trilha_alvo["status"] = "Disponível"
 
