@@ -1,33 +1,33 @@
 def editar_trilha(id_trilha, campo, novo_valor, dict_memoria):
 
-    # Garante que o ID seja string para bater com o padrão de chaves do JSON
+    # Garante que o ID seja do tipo string para bater com o padrão de chaves do JSON, ou seja, para que a pesquisa posterior possa ser feita
     id_trilha = str(id_trilha)
     
-    # Sanitiza o input: converte para string, troca espaços por underscore e força minúsculas
+    # Limpeza do input: converte para string, troca espaços por underscore e força minúsculas
     campo = str(campo).replace(" ", "_").lower()
 
-    # Trata variação ortográfica comum para alinhar com a chave oficial
+    # Trata possível erro por uso de cedilha, formatando a string para a chave usada internamente
     if campo == "preço":
         campo = "preco"
     
-    # Define as chaves estruturais e de relacionamento que não permitem edição manual
+    # Define as chaves que não podem ser editadas manualmente
     campos_protegidos = ["id_trilha", "id_guia_responsavel" , "status" , "inscritos"]
 
     # Valida a existência da trilha na base antes de qualquer operação
     if id_trilha in dict_memoria["trilhas"]:
         
-        # Bloqueia a edição se o campo alvo for restrito
+        # Bloqueia a edição se o campo buscado for protegido 
         if campo in campos_protegidos:
             print(f"ERRO: O campo '{campo}' é gerado automaticamente e não pode ser editado.")
             return False
 
-        # Previne a criação de chaves fantasmas se o campo não existir no modelo original
+        # Previne a criação de chaves fantasmas se o campo não existir no banco de dados original
         if campo not in dict_memoria["trilhas"][id_trilha]:
             print(f"ERRO: O campo '{campo}' não existe no cadastro de trilhas.")
             return False
         
         try:
-            # Aplica a tipagem correta para campos matemáticos ou de controle
+            # Aplica a tipagem e formatação correta para campos numéricos
             if campo == "capacidade":
                 novo_valor = int(novo_valor)
             if campo == "preco":
