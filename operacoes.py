@@ -1,3 +1,5 @@
+from usuarios import classificar_nivel_trilheiro
+
 def solicitar_reserva(id_trilha, id_participante, dict_memoria):
     
     # transforma os IDs em texto porque as chaves dos dicionários usados
